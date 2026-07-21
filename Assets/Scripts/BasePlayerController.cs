@@ -6,11 +6,10 @@ public class BasePlayerController : MonoBehaviour
     [SerializeField] Transform _orientation, _followCamera;
     [SerializeField] LayerMask _groundLayerMask;
     float _verticalValue, _horizontalValue, _rotationValue = 12f, _maxHealth = 100f,
-    _currentStamina, _maxStamina = 100f, _moveForce, _groundCheckDistance = 0.2f;
-    [SerializeField]
-    float _drag = 7f, _walkForce = 47f, _sprintForce = 95, _jumpForce = 10f, _downwardForce = 30f,
-        _staminaRegain = 20f, _staminaDrain = 8f, _speedMultiplier = 1f, _hitMaxDistance = 3f, _baseDamage = 10f, _currentDamage,
-        _tempoCooldown = 30f, _tempoEffectDuration = 5f;
+    _moveForce, _groundCheckDistance = 0.2f;
+    [SerializeField] float _drag = 7f, _walkForce = 47f, _sprintForce = 95, _jumpForce = 10f, _downwardForce = 30f,
+        _speedMultiplier = 1f, _hitMaxDistance = 3f, _baseDamage = 10f, _currentDamage,
+        _tempoCooldown = 20f, _tempoEffectDuration = 5f;
     public float _currentCoolDownTimer, _currentHealth;
     public int _comboCount = 2, _abilitySelected;
     Animator _animator;
@@ -35,7 +34,6 @@ public class BasePlayerController : MonoBehaviour
         _rb.linearDamping = _drag;
         _moveForce = _walkForce;
         _currentHealth = _maxHealth;
-        _currentStamina = _maxStamina;
         _currentDamage = _baseDamage;
     }
     // Update is called once per frame
@@ -57,10 +55,9 @@ public class BasePlayerController : MonoBehaviour
         if (Time.timeScale == 1f)
         {
             // Walk / Run 
-            if (Input.GetKey(KeyCode.LeftShift) && _currentStamina > 0)
+            if (Input.GetKey(KeyCode.LeftShift))
             {
                 _moveForce = _sprintForce;
-                _currentStamina -= _staminaDrain * Time.deltaTime;
             }
             else
             {
@@ -69,10 +66,6 @@ public class BasePlayerController : MonoBehaviour
             if (Input.GetMouseButtonDown(0))
             {
                 Attack();
-            }
-            if (Input.GetKeyDown(KeyCode.Space))
-            {
-                Jump();
             }
             if (Input.GetKey(KeyCode.E))
             {
@@ -87,7 +80,7 @@ public class BasePlayerController : MonoBehaviour
                 _gameUIManager.SettingMenu();
             }
 
-            if (Input.GetKeyDown(KeyCode.Q))
+            if (Input.GetKeyDown(KeyCode.Space))
             {
                 if (_currentCoolDownTimer == 0)
                 {
@@ -145,24 +138,7 @@ public class BasePlayerController : MonoBehaviour
         {
             _animator.SetInteger("Force", 0);
         }
-        StaminaUpdate();
         HealthUpdate();
-    }
-
-    void StaminaUpdate()
-    {
-        if (_moveForce != _sprintForce)
-        {
-            if (_currentStamina != _maxStamina)
-            {
-                _currentStamina += _staminaRegain * Time.deltaTime;
-                if (_currentStamina > _maxStamina)
-                {
-                    _currentStamina = _maxStamina;
-                }
-            }
-        }
-        _gameUIManager.StaminaUpdate(_currentStamina / _maxStamina);
     }
 
     void HealthUpdate()
@@ -179,33 +155,22 @@ public class BasePlayerController : MonoBehaviour
     {
         if (_currentHealth < _maxHealth && !_attacking && _inputDir.magnitude != 0)
         {
-            _currentHealth += _staminaRegain * Time.deltaTime;
+            _currentHealth += 8f * Time.deltaTime;
         }
-    }
-
-    void Jump()
-    {
-        if (_isGrounded && _canMove)
-        {
-            _animator.SetBool("Jump", true);
-        }
-    }
-
-    void JumpForce()
-    {
-        _rb.AddForce(transform.up * _jumpForce, ForceMode.Impulse);
-    }
-
-    void JumpReset()
-    {
-        _animator.SetBool("Jump", false);
     }
 
     public void TakeDamage(float _damageValue)
     {
         if (!_animator.GetBool("Block"))
         {
-            _currentHealth -= _damageValue;
+            if (_currentHealth > _damageValue)
+            {
+                _currentHealth -= _damageValue;
+            }
+            else
+            {
+                _currentHealth = 0f;
+            }
             HealthUpdate();
         }
     }

@@ -8,11 +8,12 @@ public class GameUIManager : MonoBehaviour
 {
     [SerializeField] GameObject _waveOne, _waveTwo, _waveThree, _boss;
     [SerializeField] GameObject _settingPanel, _gamePanel, _abilitySelectionPanel;
-    [SerializeField] Button _resumeBtn, _restartBtn, _mainMenuBtn, _speedBtn, _slowBtn, _freezeBtn, _speedTestBtn, _slowTestBtn, _freezeTestBtn;
+    [SerializeField] Button _resumeBtn, _restartBtn, _mainMenuBtn, _speedBtn, _slowBtn, _freezeBtn, _speedTestBtn, _slowTestBtn, _freezeTestBtn,
+        _chronoBtn, _tempusBtn,_wardenBtn;
     [SerializeField] TMP_Text _abilityTimer;
     [SerializeField] Slider _sensitivitySlider;
     BasePlayerController _player;
-    public Image _healthBar, _staminaBar;
+    public Image _healthBar;
     float _valueChangeAmount = 0.5f;
     public int _killCount = 0;
 
@@ -34,7 +35,15 @@ public class GameUIManager : MonoBehaviour
         _speedTestBtn.onClick.AddListener(SpeedTest);
         _slowTestBtn.onClick.AddListener(SlowTest);
         _freezeTestBtn.onClick.AddListener(FreezeTest);
+        _chronoBtn.onClick.AddListener(DoNothing);
+        _tempusBtn.onClick.AddListener(DoNothing);
+        _wardenBtn.onClick.AddListener(DoNothing);
         _sensitivitySlider.onValueChanged.AddListener(SensitivityChange);
+    }
+
+    void DoNothing()
+    {
+
     }
 
     void Speed()
@@ -126,14 +135,6 @@ public class GameUIManager : MonoBehaviour
         }
     }
 
-    public void StaminaUpdate(float _value)
-    {
-        if (_value != _staminaBar.fillAmount)
-        {
-            _staminaBar.fillAmount = Mathf.MoveTowards(_staminaBar.fillAmount, _value, _valueChangeAmount * Time.deltaTime);
-        }
-    }
-
     void Resume()
     {
         Cursor.lockState = CursorLockMode.Locked;
@@ -198,10 +199,13 @@ public class GameUIManager : MonoBehaviour
 
     public void TimerUpdate()
     {
-        if(_player._currentCoolDownTimer == 0)
+        if (_player._currentCoolDownTimer <= 0)
         {
-            _abilityTimer.text = "Q";
+            _abilityTimer.text = "Space";
         }
-        _abilityTimer.text = _player._currentCoolDownTimer.ToString() + "s";
+        else
+        {
+            _abilityTimer.text = _player._currentCoolDownTimer.ToString() + "s";
+        }
     }
 }
