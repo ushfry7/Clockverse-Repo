@@ -12,6 +12,7 @@ public class BaseEnemyAI : MonoBehaviour
     float _currentHealth, _valueChangeAmount = 0.5f, _speed = 2.5f;
     [SerializeField] float _maxHealth = 100f, _damage = 10f, _hitMaxDistance = 2.5f;
     RaycastHit _hit; 
+    GameUIManager _gameUIManager;
     bool _haveTakenDamage = false;
     int _newPlayerStrike;
 
@@ -28,10 +29,11 @@ public class BaseEnemyAI : MonoBehaviour
     void ComponentAssignment()
     {
         _agent = GetComponent<NavMeshAgent>();
-        _agent.speed = 1.5f;
+        _agent.speed = _speed;
         _agent.stoppingDistance = 2f;
         _animator = GetComponent<Animator>();
         _target = FindFirstObjectByType<BasePlayerController>().gameObject;
+        _gameUIManager = FindFirstObjectByType<GameUIManager>();
         FaceTarget();
     }
 
@@ -84,6 +86,8 @@ public class BaseEnemyAI : MonoBehaviour
         {
             _animator.SetBool("Dead", true);
         }
+        FindFirstObjectByType<TempoSystem>()._currentRecharge += Mathf.RoundToInt(value);
+        _gameUIManager.RechargeUpdate();
         _haveTakenDamage = true;
     }
 
@@ -91,7 +95,10 @@ public class BaseEnemyAI : MonoBehaviour
     {
         if (Physics.Raycast(transform.position, transform.forward, out _hit, _hitMaxDistance))
         {
-            _hit.collider.GetComponent<BasePlayerController>().TakeDamage(_damage);
+            if (_hit.collider.TryGetComponent<BasePlayerController>(out BasePlayerController _player))
+            {
+                _player.TakeDamage(_damage);
+            }
         }
     }
 
@@ -101,18 +108,33 @@ public class BaseEnemyAI : MonoBehaviour
         gameObject.SetActive(false);
     }
 
-    public void SlowDown(float value)
+    public void PermanentSlow(float _slowDown)
     {
-        StartCoroutine(SlowDownTempo(value));
+        _agent.speed -= (_agent.speed * _slowDown / 100);
+        _animator.speed -= (_animator.speed * _slowDown / 100);
     }
 
-    IEnumerator SlowDownTempo(float value)
+    public void SlowDown(float _duration, float _slowDown, float _delay = 0, bool _continous = false, float _activationDelay = 0)
     {
-        _agent.speed /= 2f;
-        _animator.speed /= 2f;
-        yield return new WaitForSeconds(value);
-        _agent.speed *= 2f;
-        _animator.speed *= 2f;
+        StartCoroutine(SlowDownTempo(_duration, _slowDown, _delay, _continous, _activationDelay));
+    }
+
+    IEnumerator SlowDownTempo(float _duration, float _slowDown, float _delay, bool _continous, float _activationDelay)
+    {
+        yield return new WaitForSeconds(_activationDelay);
+        _agent.speed -= (_agent.speed * _slowDown / 100);
+        _animator.speed = (_animator.speed * _slowDown / 100);
+        if (_continous)
+        {
+            yield return new WaitUntil(_gameUIManager._player.HaveForce);
+        }
+        else
+        {
+            yield return new WaitForSeconds(_duration);
+        }
+        yield return new WaitForSeconds(_delay);
+        _agent.speed = _speed;
+        _animator.speed = 1f;
     }
 
     public void Freeze(float value)
@@ -138,5 +160,10 @@ public class BaseEnemyAI : MonoBehaviour
 
         if (direction.sqrMagnitude > 0.01f)
             transform.rotation = Quaternion.LookRotation(direction);
+    }
+    public void Normal()
+    {
+        _agent.speed = _speed;
+        _animator.speed = 1f;
     }
 }

@@ -7,16 +7,19 @@ using UnityEngine.UI;
 public class GameUIManager : MonoBehaviour
 {
     [SerializeField] GameObject _waveOne, _waveTwo, _waveThree, _boss;
-    [SerializeField] GameObject _settingPanel, _gamePanel, _abilitySelectionPanel;
-    [SerializeField] Button _resumeBtn, _restartBtn, _mainMenuBtn, _speedBtn, _slowBtn, _freezeBtn, _speedTestBtn, _slowTestBtn, _freezeTestBtn,
-        _chronoBtn, _tempusBtn,_wardenBtn;
-    [SerializeField] TMP_Text _abilityTimer;
+    [SerializeField] GameObject _gamePanel, _abilitySelectionPanel;
+    [SerializeField] Button _startBtn, _restartBtn, _mainMenuBtn, _haltBtn, _pathBtn, _ruleBtn, _starBtn, _zionBtn, _goldBtn,
+        _modZeroBtn, _modOneBtn, _modTwoBtn, _modThreeBtn, _modFourBtn,
+                _chronoBtn, _tempusBtn, _wardenBtn;
+    [SerializeField] TMP_Text _abilityTimerTxt, _rechargeTxt,
+        _modOneTxt, _modTwoTxt, _modThreeTxt, _modFourTxt;
     [SerializeField] Slider _sensitivitySlider;
-    BasePlayerController _player;
+    public BasePlayerController _player;
+    public TempoSystem _tempoSystem;
     public Image _healthBar;
     float _valueChangeAmount = 0.5f;
     public int _killCount = 0;
-
+    [SerializeField] TempoSystem _haltTempo, _pathTempo, _ruleTempo, _starTempo, _zionTempo, _goldTempo;
     private void Start()
     {
         ComponentAssignment();
@@ -24,21 +27,27 @@ public class GameUIManager : MonoBehaviour
 
     void ComponentAssignment()
     {
-        _player = FindFirstObjectByType<BasePlayerController>();
+        _player = FindFirstObjectByType<BasePlayerController>();       
         Time.timeScale = 0f;
-        _resumeBtn.onClick.AddListener(Resume);
+        _startBtn.onClick.AddListener(StartGame);
         _restartBtn.onClick.AddListener(Restart);
         _mainMenuBtn.onClick.AddListener(MainMenu);
-        _speedBtn.onClick.AddListener(Speed);
-        _slowBtn.onClick.AddListener(Slow);
-        _freezeBtn.onClick.AddListener(Freeze);
-        _speedTestBtn.onClick.AddListener(SpeedTest);
-        _slowTestBtn.onClick.AddListener(SlowTest);
-        _freezeTestBtn.onClick.AddListener(FreezeTest);
+        _haltBtn.onClick.AddListener(HaltTempo);
+        _pathBtn.onClick.AddListener(PathTempo);
+        _ruleBtn.onClick.AddListener(RuleTempo);
+        _starBtn.onClick.AddListener(StarTempo);
+        _zionBtn.onClick.AddListener(ZionTempo);
+        _goldBtn.onClick.AddListener(GoldTempo);
+        _modZeroBtn.onClick.AddListener(ModZeroSelected);
+        _modOneBtn.onClick.AddListener(ModOneSelected);
+        _modTwoBtn.onClick.AddListener(ModTwoSelected);
+        _modThreeBtn.onClick.AddListener(ModThreeSelected);
+        _modFourBtn.onClick.AddListener(ModFourSelected);
         _chronoBtn.onClick.AddListener(DoNothing);
         _tempusBtn.onClick.AddListener(DoNothing);
         _wardenBtn.onClick.AddListener(DoNothing);
         _sensitivitySlider.onValueChanged.AddListener(SensitivityChange);
+        TempoReset();
     }
 
     void DoNothing()
@@ -46,62 +55,132 @@ public class GameUIManager : MonoBehaviour
 
     }
 
-    void Speed()
+    void TempoReset()
     {
-        _player._abilitySelected = 1;
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
-        Time.timeScale = 1;
-        StartCoroutine(PanelSequence(_abilitySelectionPanel.GetComponent<CanvasGroup>(), 0, 1, -0.25f));
+        _haltTempo.enabled = false;
+        _pathTempo.enabled = false;
+        _ruleTempo.enabled = false;
+        _starTempo.enabled = false;
+        _zionTempo.enabled = false;
+        _goldTempo.enabled = false;
+        _modOneTxt.text = "Mod1";
+        _modTwoTxt.text = "Mod2";
+        _modThreeTxt.text = "Mod3";
+        _modFourTxt.text = "Mod4";
     }
 
-    void Slow()
+    void HaltTempo()
     {
-        _player._abilitySelected = 2;
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
-        Time.timeScale = 1;
-        StartCoroutine(PanelSequence(_abilitySelectionPanel.GetComponent<CanvasGroup>(), 0, 1, -0.25f));
+        TempoReset();
+        _haltTempo.enabled = true;
+        _tempoSystem = _haltTempo;
+        _modOneTxt.text = "Ire";
+        _modTwoTxt.text = "Joy";
+        _modThreeTxt.text = "Cry";
+        _modFourTxt.text = "Vex";
     }
 
-    void Freeze()
+    void PathTempo()
     {
-        _player._abilitySelected = 3;
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
-        Time.timeScale = 1;
-        StartCoroutine(PanelSequence(_abilitySelectionPanel.GetComponent<CanvasGroup>(), 0, 1, -0.25f));
+        TempoReset();
+        _pathTempo.enabled = true;
+        _tempoSystem = _pathTempo;
+        _modOneTxt.text = "Vex";
+        _modTwoTxt.text = "Cry";
+        _modThreeTxt.text = "Ant";
+        _modFourTxt.text = "Gap";
     }
 
-    void SpeedTest()
+    void RuleTempo()
     {
-        _player._abilitySelected = 1;
-        Resume();
+        TempoReset();
+        _ruleTempo.enabled = true;
+        _tempoSystem = _ruleTempo;
+        _modOneTxt.text = "Ire";
+        _modTwoTxt.text = "Ant";
+        _modThreeTxt.text = "Vex";
+        _modFourTxt.text = "Ice";
     }
 
-    void SlowTest()
+    void StarTempo()
     {
-        _player._abilitySelected = 2;
-        Resume();
+        TempoReset();
+        _starTempo.enabled = true;
+        _tempoSystem = _starTempo;
+        _modOneTxt.text = "Rue";
+        _modTwoTxt.text = "Foe";
+        _modThreeTxt.text = "Ant";
+        _modFourTxt.text = "Pay";
     }
 
-    void FreezeTest()
+    void ZionTempo()
     {
-        _player._abilitySelected = 3;
-        Resume();
+        TempoReset();
+        _zionTempo.enabled = true;
+        _tempoSystem = _zionTempo;
+        _modOneTxt.text = "Ant";
+        _modTwoTxt.text = "Cry";
+        _modThreeTxt.text = "Gem";
+        _modFourTxt.text = "But";
+    }
+
+    void GoldTempo()
+    {
+        TempoReset();
+        _goldTempo.enabled = true;
+        _tempoSystem = _goldTempo;
+        _modOneTxt.text = "Rue";
+        _modTwoTxt.text = "Raw";
+        _modThreeTxt.text = "But";
+        _modFourTxt.text = "Zen";
+    }
+
+    void ModZeroSelected()
+    {
+        _tempoSystem._epochSelected = 0;
+        _tempoSystem.EpochSelect();
+    }
+
+    void ModOneSelected()
+    {
+        _tempoSystem._epochSelected = 1;
+        _tempoSystem.EpochSelect();
+    }
+
+    void ModTwoSelected()
+    {
+        _tempoSystem._epochSelected = 3;
+        _tempoSystem.EpochSelect();
+    }
+
+    void ModThreeSelected()
+    {
+        _tempoSystem._epochSelected = 4;
+        _tempoSystem.EpochSelect();
+    }
+
+    void ModFourSelected()
+    {
+        _tempoSystem._epochSelected = 5;
+        _tempoSystem.EpochSelect();
     }
 
     public void SettingMenu()
     {
-        if (!_settingPanel.activeSelf)
+        if (!_abilitySelectionPanel.activeSelf)
         {
-            if(_player._currentHealth <= 0)
+            _player.Normal();
+            foreach (BaseEnemyAI enemy in FindObjectsByType<BaseEnemyAI>(FindObjectsInactive.Include, FindObjectsSortMode.None))
             {
-                _resumeBtn.gameObject.SetActive(false);
+                enemy.Normal();
+            }
+            if (_player._currentHealth <= 0)
+            {
+                _startBtn.gameObject.SetActive(false);
             }
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
-            StartCoroutine(PanelSequence(_settingPanel.GetComponent<CanvasGroup>(), 1f, 0f));
+            StartCoroutine(PanelSequence(_abilitySelectionPanel.GetComponent<CanvasGroup>(), 1f, 0f));
         }
     }
 
@@ -135,11 +214,12 @@ public class GameUIManager : MonoBehaviour
         }
     }
 
-    void Resume()
+    void StartGame()
     {
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
-        StartCoroutine(PanelSequence(_settingPanel.GetComponent<CanvasGroup>(), 0f, 1f, -0.1f));
+        Time.timeScale = 1;
+        StartCoroutine(PanelSequence(_abilitySelectionPanel.GetComponent<CanvasGroup>(), 0f, 1f, -0.1f));
     }
 
     void Restart()
@@ -199,13 +279,25 @@ public class GameUIManager : MonoBehaviour
 
     public void TimerUpdate()
     {
-        if (_player._currentCoolDownTimer <= 0)
+        if (_tempoSystem._currentCoolDownTimer <= 0)
         {
-            _abilityTimer.text = "Space";
+            _abilityTimerTxt.text = "Space";
         }
         else
         {
-            _abilityTimer.text = _player._currentCoolDownTimer.ToString() + "s";
+            _abilityTimerTxt.text = _tempoSystem._currentCoolDownTimer.ToString() + "s";
+        }
+    }
+
+    public void RechargeUpdate()
+    {
+        if (_tempoSystem._currentRecharge >= 100)
+        {
+            _rechargeTxt.text = "Space";
+        }
+        else
+        {
+            _rechargeTxt.text = _tempoSystem._currentRecharge.ToString() + "%";
         }
     }
 }

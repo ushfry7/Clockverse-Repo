@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using static UnityEditor.Experimental.GraphView.GraphView;
 
 public class BasePlayerController : MonoBehaviour
 {
@@ -7,18 +8,18 @@ public class BasePlayerController : MonoBehaviour
     [SerializeField] LayerMask _groundLayerMask;
     float _verticalValue, _horizontalValue, _rotationValue = 12f, _maxHealth = 100f,
     _moveForce, _groundCheckDistance = 0.2f;
-    [SerializeField] float _drag = 7f, _walkForce = 47f, _sprintForce = 95, _jumpForce = 10f, _downwardForce = 30f,
-        _speedMultiplier = 1f, _hitMaxDistance = 3f, _baseDamage = 10f, _currentDamage,
-        _tempoCooldown = 20f, _tempoEffectDuration = 5f;
-    public float _currentCoolDownTimer, _currentHealth;
-    public int _comboCount = 2, _abilitySelected;
-    Animator _animator;
+    [SerializeField]
+    float _drag = 7f, _walkForce = 47f, _sprintForce = 95, _jumpForce = 10f, _downwardForce = 30f,
+       _hitMaxDistance = 3f, _baseDamage = 10f, _currentDamage;
+    public float _currentHealth, _speedMultiplier = 1f;
+    public int _comboCount = 2;
+    public Animator _animator;
     Rigidbody _rb;
-    Vector3 _inputDir;
+    public Vector3 _inputDir;
     bool _isGrounded;
-    bool _canMove = true;
+    public bool _canMove = true;
     GameUIManager _gameUIManager;
-    public bool _attacking = false;
+    public bool _attacking = false, _imune = false, _imuneHit = false;
 
     void Start()
     {
@@ -50,53 +51,40 @@ public class BasePlayerController : MonoBehaviour
 
     public virtual void KeyInputs()
     {
+        if (_canMove) { 
         _verticalValue = Input.GetAxis("Vertical");
         _horizontalValue = Input.GetAxis("Horizontal");
-        if (Time.timeScale == 1f)
-        {
-            // Walk / Run 
-            if (Input.GetKey(KeyCode.LeftShift))
+            if (Time.timeScale == 1f)
             {
-                _moveForce = _sprintForce;
-            }
-            else
-            {
-                _moveForce = _walkForce;
-            }
-            if (Input.GetMouseButtonDown(0))
-            {
-                Attack();
-            }
-            if (Input.GetKey(KeyCode.E))
-            {
-                _animator.SetBool("Block", true);
-            }
-            else
-            {
-                _animator.SetBool("Block", false);
-            }
-            if (Input.GetKeyDown(KeyCode.Escape))
-            {
-                _gameUIManager.SettingMenu();
-            }
-
-            if (Input.GetKeyDown(KeyCode.Space))
-            {
-                if (_currentCoolDownTimer == 0)
+                // Walk / Run 
+                if (Input.GetKey(KeyCode.LeftShift))
                 {
-                    if (_abilitySelected == 1)
-                    {
-                        SpeedTime();
-                    }
-                    else if (_abilitySelected == 2)
-                    {
-                        SlowDownTime();
-                    }
-                    else if (_abilitySelected == 3)
-                    {
-                        FreezeTime();
-                    }
-                    StartCoroutine(CoolDownPeriod());
+                    _moveForce = _sprintForce;
+                }
+                else
+                {
+                    _moveForce = _walkForce;
+                }
+                if (Input.GetMouseButtonDown(0))
+                {
+                    Attack();
+                }
+                if (Input.GetKey(KeyCode.E))
+                {
+                    _animator.SetBool("Block", true);
+                }
+                else
+                {
+                    _animator.SetBool("Block", false);
+                }
+                if (Input.GetKeyDown(KeyCode.Escape))
+                {
+                    _gameUIManager.SettingMenu();
+                }
+
+                if (Input.GetKeyDown(KeyCode.Space))
+                {
+                    _gameUIManager._tempoSystem.EpochCall();
                 }
             }
         }
@@ -141,6 +129,11 @@ public class BasePlayerController : MonoBehaviour
         HealthUpdate();
     }
 
+    public bool HaveForce()
+    {
+        return _inputDir.magnitude > 0;
+    }
+
     void HealthUpdate()
     {
         HealthRegan();
@@ -161,17 +154,26 @@ public class BasePlayerController : MonoBehaviour
 
     public void TakeDamage(float _damageValue)
     {
-        if (!_animator.GetBool("Block"))
+        if (!_imune)
         {
-            if (_currentHealth > _damageValue)
+            if (!_animator.GetBool("Block"))
             {
-                _currentHealth -= _damageValue;
+                if (_currentHealth > _damageValue)
+                {
+                    _currentHealth -= _damageValue;
+                }
+                else
+                {
+                    _currentHealth = 0f;
+                }
+                HealthUpdate();
+                FindFirstObjectByType<TempoSystem>()._currentRecharge += 25;
+                _gameUIManager.RechargeUpdate();
             }
-            else
-            {
-                _currentHealth = 0f;
-            }
-            HealthUpdate();
+        }
+        else
+        {
+            _imuneHit = true;
         }
     }
 
@@ -220,44 +222,50 @@ public class BasePlayerController : MonoBehaviour
         _animator.SetBool("Attack", false);
     }
 
-    IEnumerator CoolDownPeriod()
+    public void HaltTempo(float value)
     {
-        _currentCoolDownTimer = _tempoCooldown;
-        while (_currentCoolDownTimer > 0)
-        {
-            _currentCoolDownTimer--;
-            _gameUIManager.TimerUpdate();
-            yield return new WaitForSeconds(1f);
-        }
+        StartCoroutine(HaltSequence(value));
     }
 
-    void SpeedTime()
+    IEnumerator HaltSequence(float value)
     {
-        StartCoroutine(Speed(_tempoEffectDuration));
-    }
-
-    IEnumerator Speed(float value)
-    {
-        _speedMultiplier += _speedMultiplier / 2f;
-        _animator.speed += _animator.speed / 2f;
+        _canMove = false;
+        _animator.speed = 0f;
         yield return new WaitForSeconds(value);
-        _speedMultiplier = 1f;
+        _canMove = true;
         _animator.speed = 1f;
     }
 
-    void SlowDownTime()
+    public void RuleTempo(float _duration)
     {
-        foreach (BaseEnemyAI enemy in FindObjectsByType<BaseEnemyAI>(FindObjectsSortMode.None))
-        {
-            enemy.SlowDown(_tempoEffectDuration);
-        }
+        StartCoroutine(RuleSequence(_duration));
     }
 
-    void FreezeTime()
+    IEnumerator RuleSequence(float _duration)
     {
-        foreach (BaseEnemyAI enemy in FindObjectsByType<BaseEnemyAI>(FindObjectsSortMode.None))
-        {
-            enemy.Freeze(_tempoEffectDuration);
-        }
+        _imune = true;
+        yield return new WaitForSeconds(_duration);
+        _imune = false;
+    }
+
+    public void ZionTempo(float _duration, float _maxSpeed, float _returnSpeed)
+    {
+        StartCoroutine(ZionSequence(_duration, _maxSpeed, _returnSpeed));
+    }
+
+    IEnumerator ZionSequence(float _duration, float _maxSpeed, float _returnSpeed)
+    {
+        _speedMultiplier = _maxSpeed;
+        _animator.speed = _maxSpeed;
+        yield return new WaitForSeconds(_duration);
+        _speedMultiplier = _returnSpeed;
+        _animator.speed = _returnSpeed;
+    }
+    public void Normal()
+    {
+        _canMove = true;
+        _animator.speed = 1f;
     }
 }
+
+
