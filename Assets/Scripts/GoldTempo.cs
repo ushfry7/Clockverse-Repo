@@ -32,19 +32,19 @@ public class GoldTempo : TempoSystem
         switch (_epochSelected)
         {
             case 1:
-                Rue_Gold();
+                //Rue_Gold();
                 break;
             case 2:
-                Raw_gold();
+                //Raw_gold();
                 break;
             case 3:
                 But_Gold();
                 break;
             case 4:
-                Zen_Gold();
+                //Zen_Gold();
                 break;
             default:
-                Basic_Gold();
+                //Basic_Gold();
                 break;
         }
     }
@@ -54,7 +54,24 @@ public class GoldTempo : TempoSystem
         {
             if (!_player.HaveForce())
             {
-                EpochCall();
+                switch (_epochSelected)
+                {
+                    case 1:
+                        Rue_Gold();
+                        break;
+                    case 2:
+                        Raw_gold();
+                        break;
+                    case 3:
+                        But_Gold();
+                        break;
+                    case 4:
+                        Zen_Gold();
+                        break;
+                    default:
+                        Basic_Gold();
+                        break;
+                }
             }
             yield return new WaitUntil(_player.HaveForce);
         }
@@ -62,8 +79,15 @@ public class GoldTempo : TempoSystem
 
     void BasicGoldSelected()
     {
-        StartCoroutine(GoldWork());
-        //While the player is standing still, time slows down incredibly.
+        // ================= GOLD =================
+
+        // Base Gold
+        // Duration: While standing still
+        // Recharge: None
+        // Operation:
+        // While player is stationary, enemy time slows down dramatically.
+        // Moving disables the effect.
+        StartCoroutine(GoldWork());      
     }
 
     void Basic_Gold()
@@ -76,11 +100,15 @@ public class GoldTempo : TempoSystem
 
     public void RueGoldSelected()
     {
-        StartCoroutine(GoldWork());
-        //        When you start moving:
+        // ================= RUE =================
 
-        //Enemy time takes 1 second to return to normal.
-        //Enemies are only slowed by 90 %.
+        // Rue
+        // Duration: While standing still
+        // Recharge: None
+        // Operation:
+        // Enemy time returns to normal 1s after the player starts moving.
+        // Maximum enemy slowdown = 90%.
+        StartCoroutine(GoldWork());
     }
 
     void Rue_Gold()
@@ -93,9 +121,16 @@ public class GoldTempo : TempoSystem
 
     public void RawGoldSelected()
     {
+        // ================= RAW =================
+
+        // Raw
+        // Duration: While standing still
+        // Recharge: None
+        // Activation Delay: 0.2s
+        // Operation:
+        // Completely stop enemy time.
+        // Takes 0.2s to activate.
         StartCoroutine(GoldWork());
-        //        Time becomes fully stopped
-        //Gold takes 0.2s to activate
     }
 
     void Raw_gold()
@@ -108,12 +143,15 @@ public class GoldTempo : TempoSystem
 
     public void ButGoldSelected()
     {
-        //        While holding the activation:
+        // ================= BUT =================
 
-        //You can move for up to 3s
-        //Time remains slowed during that movement
-        //Has a 9s cooldown
-        //Cannot stop time while cooldown is active
+        // But
+        // Duration: Up to 3s movement
+        // Recharge: 9s
+        // Operation:
+        // Hold activation to gain up to 3s of movement.
+        // Enemy time remains slowed while moving.
+        // Cannot stop time while cooldown is active.
         TempoValues(9f, 3f, 1, 0, false);
     }
 
@@ -121,7 +159,6 @@ public class GoldTempo : TempoSystem
     {
         if (_charges > 0)
         {
-            _charges--;
             foreach (BaseEnemyAI enemy in FindObjectsByType<BaseEnemyAI>(FindObjectsSortMode.None))
             {
                 enemy.SlowDown(_tempoEffectDuration, 90f, 3f, true, 0f);
@@ -132,10 +169,15 @@ public class GoldTempo : TempoSystem
 
     public void ZenGoldSelected()
     {
-        //Gold becomes passive:
-        //Enemy time is permanently slowed by 25 %
-        //All other Gold mechanics are disabled.
+        // ================= ZEN =================
 
+        // Zen
+        // Duration: Passive
+        // Recharge: None
+        // Operation:
+        // Permanently slow enemy time by 25%.
+        // Disables all other Gold behavior.
+        Zen_Gold();
     }
 
     void Zen_Gold()

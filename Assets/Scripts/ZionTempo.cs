@@ -1,5 +1,3 @@
-using UnityEngine;
-
 public class ZionTempo : TempoSystem
 {
     public override void EpochSelect()
@@ -50,7 +48,14 @@ public class ZionTempo : TempoSystem
 
     void BasicZionSelected()
     {
-        //Default: Gradually double the speed of time for yourself for 20s, decaying after it ends. Recharges over 40s.
+        // ================= ZION =================
+
+        // Base Zion
+        // Duration: 20s
+        // Recharge: 40s
+        // Operation:
+        // Gradually increase player's time speed up to 2x.
+        // After the effect ends, time speed decays back to normal.
         TempoValues(40f, 20f, 1, 0, false);
     }
 
@@ -65,7 +70,14 @@ public class ZionTempo : TempoSystem
 
     public void AntZionSelected()
     {
-        //Ant: Duration, windup, wind-down and cooldown reduced to a quarter of original length.
+        // ================= ANT =================
+
+        // Ant
+        // Duration: 5s
+        // Recharge: 10s
+        // Operation:
+        // Duration, windup, wind-down and cooldown are reduced to 25%.
+        // Time speed effect remains the same.
         TempoValues(10f, 5f, 1, 0, false);
     }
 
@@ -80,7 +92,14 @@ public class ZionTempo : TempoSystem
 
     public void CryZionSelected()
     {
-        //Cry: Your speed of time is permanently increased by 25%. Disables all other aspects of the tempo.
+        // ================= CRY =================
+
+        // Cry
+        // Duration: Passive
+        // Recharge: None
+        // Operation:
+        // Permanently increase player's time speed by 25%.
+        // Disables all other Zion behavior.
         TempoValues(10f, 5f, 1, 0, true);
         Cry_Zion();
     }
@@ -97,7 +116,14 @@ public class ZionTempo : TempoSystem
 
     public void GemZionSelected()
     {
-        //Gem: Your speed of time is instead tripled, but otherwise reduced by 20% when inactive.
+        // ================= GEM =================
+
+        // Gem
+        // Duration: 20s
+        // Recharge: 40s
+        // Operation:
+        // Player time speed increases to 3x instead of 2x.
+        // Outside Zion, player's time speed is reduced by 20%.
         TempoValues(40f, 20f, 1, 0, false);
         _player._speedMultiplier = 0.8f;
         _player._animator.speed = 0.8f;
@@ -105,8 +131,8 @@ public class ZionTempo : TempoSystem
 
     void Gem_Zion()
     {
-        if (_charges > 0) 
-        { 
+        if (_charges > 0)
+        {
             StartCoroutine(CoolDownPeriod());
             _player.ZionTempo(_tempoEffectDuration, 3f, 0.8f);
         }
@@ -114,7 +140,15 @@ public class ZionTempo : TempoSystem
 
     public void ButZionSelected()
     {
-        //But: Tempo can be deactivated at any time, keeping unused charge, but cooldown is increased to 60s.
+        // ================= BUT =================
+
+        // But
+        // Duration: Up to 20s
+        // Recharge: 60s
+        // Operation:
+        // Can deactivate Zion early.
+        // Unused charge is retained.
+        // Recharge time increased to 60s.
         TempoValues(60f, 20f, 1, 0, false);
     }
 

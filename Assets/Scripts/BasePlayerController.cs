@@ -1,16 +1,12 @@
 using System.Collections;
 using UnityEngine;
-using static UnityEditor.Experimental.GraphView.GraphView;
 
 public class BasePlayerController : MonoBehaviour
 {
     [SerializeField] Transform _orientation, _followCamera;
     [SerializeField] LayerMask _groundLayerMask;
-    float _verticalValue, _horizontalValue, _rotationValue = 12f, _maxHealth = 100f,
-    _moveForce, _groundCheckDistance = 0.2f;
-    [SerializeField]
-    float _drag = 7f, _walkForce = 47f, _sprintForce = 95, _jumpForce = 10f, _downwardForce = 30f,
-       _hitMaxDistance = 3f, _baseDamage = 10f, _currentDamage;
+    float _verticalValue, _horizontalValue, _rotationValue = 12f, _moveForce, _groundCheckDistance = 0.2f, _maxHealth = 100f;
+    [SerializeField] float _drag = 7f, _walkForce = 47f, _sprintForce = 95, _downwardForce = 30f, _hitMaxDistance = 3f, _baseDamage = 10f, _currentDamage;
     public float _currentHealth, _speedMultiplier = 1f;
     public int _comboCount = 2;
     public Animator _animator;
@@ -51,9 +47,10 @@ public class BasePlayerController : MonoBehaviour
 
     public virtual void KeyInputs()
     {
-        if (_canMove) { 
-        _verticalValue = Input.GetAxis("Vertical");
-        _horizontalValue = Input.GetAxis("Horizontal");
+        if (_canMove)
+        {
+            _verticalValue = Input.GetAxis("Vertical");
+            _horizontalValue = Input.GetAxis("Horizontal");
             if (Time.timeScale == 1f)
             {
                 // Walk / Run 
@@ -138,7 +135,7 @@ public class BasePlayerController : MonoBehaviour
     {
         HealthRegan();
         _gameUIManager.HealthUpdate(_currentHealth / _maxHealth);
-        if(_currentHealth <= 0)
+        if (_currentHealth <= 0)
         {
             _gameUIManager.SettingMenu();
         }
@@ -222,20 +219,25 @@ public class BasePlayerController : MonoBehaviour
         _animator.SetBool("Attack", false);
     }
 
-    public void HaltTempo(float value)
-    {
-        StartCoroutine(HaltSequence(value));
-    }
+    //public void HaltTempo(float value)
+    //{
+    //    StartCoroutine(HaltSequence(value));
+    //}
 
-    IEnumerator HaltSequence(float value)
-    {
-        _canMove = false;
-        _animator.speed = 0f;
-        yield return new WaitForSeconds(value);
-        _canMove = true;
-        _animator.speed = 1f;
-    }
+    //IEnumerator HaltSequence(float value)
+    //{
+    //    _canMove = false;
+    //    _animator.speed = 0f;
+    //    yield return new WaitForSeconds(value);
+    //    _canMove = true;
+    //    _animator.speed = 1f;
+    //}
 
+    public void PlayerSlowDown(float _slowDown)
+    {
+        _speedMultiplier -= _slowDown / 100;
+        _animator.speed -= _slowDown / 100;
+    }
     public void RuleTempo(float _duration)
     {
         StartCoroutine(RuleSequence(_duration));
@@ -244,6 +246,7 @@ public class BasePlayerController : MonoBehaviour
     IEnumerator RuleSequence(float _duration)
     {
         _imune = true;
+        _imuneHit = false;
         yield return new WaitForSeconds(_duration);
         _imune = false;
     }
@@ -261,9 +264,25 @@ public class BasePlayerController : MonoBehaviour
         _speedMultiplier = _returnSpeed;
         _animator.speed = _returnSpeed;
     }
+
+    public void RushTempo(float _duration, float _maxSpeed, float _returnSpeed)
+    {
+        StartCoroutine(RushSequence(_duration, _maxSpeed, _returnSpeed));
+    }
+
+    IEnumerator RushSequence(float _duration, float _maxSpeed, float _returnSpeed)
+    {
+        _speedMultiplier = _maxSpeed;
+        _animator.speed = _maxSpeed;
+        yield return new WaitForSeconds(_duration);
+        _speedMultiplier = _returnSpeed;
+        _animator.speed = _returnSpeed;
+    }
+
     public void Normal()
     {
         _canMove = true;
+        _speedMultiplier = 1f;
         _animator.speed = 1f;
     }
 }

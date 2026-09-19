@@ -7,7 +7,7 @@ public class TempoSystem : MonoBehaviour
     public GameUIManager _gameUIManager;
     public int _tempoSelected, _epochSelected = 0, _chargeLimit = 1;
     public float _currentCoolDownTimer, _tempoCooldown = 20f, _tempoEffectDuration = 5f, _effectPenality, _effectPenalityResetDuration, _timeToActivate = 0;
-    public bool _autoCall = false, _canCancelEarly = false, _timeInfluence = false;
+    public bool _autoCall = false, _canCancelEarly = false, _timeInfluence = false, _canCalledEarly;
     public int _charges, _currentRecharge;
 
     void Start()
@@ -26,7 +26,7 @@ public class TempoSystem : MonoBehaviour
 
     }
 
-    public void TempoValues(float _tempoCoolD, float _effectDuration, int _charge, int _activationTime, bool _autoC)
+    public void TempoValues(float _tempoCoolD, float _effectDuration, int _charge, int _activationTime, bool _autoC, bool _callEarly = false)
     {
         _tempoCooldown = _tempoCoolD;
         _tempoEffectDuration = _effectDuration;
@@ -34,6 +34,7 @@ public class TempoSystem : MonoBehaviour
         _charges = _chargeLimit;
         _timeToActivate = _activationTime;
         _autoCall = _autoC;
+        _canCalledEarly = _callEarly;
     }
 
 
@@ -52,6 +53,30 @@ public class TempoSystem : MonoBehaviour
                 {
                     _charges += 1;
                 }
+            }
+        }
+    }
+
+    public IEnumerator LargeCoolDownPeriod()
+    {
+        _charges -= 1;
+        _currentCoolDownTimer += _tempoCooldown;
+        while (_currentCoolDownTimer > 0)
+        {
+            _currentCoolDownTimer--;
+            _gameUIManager.TimerUpdate();
+            yield return new WaitForSeconds(1f);
+            if (_currentCoolDownTimer < _tempoCooldown * 2 && _charges == 0)
+            {
+                _charges++;
+            }
+            else if (_currentCoolDownTimer < _tempoCooldown && _charges == 1)
+            {
+                _charges++;
+            }
+            else if (_currentCoolDownTimer <= 0 && _charges == 2)
+            {
+                _charges++;
             }
         }
     }

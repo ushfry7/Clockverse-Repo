@@ -8,7 +8,7 @@ public class GameUIManager : MonoBehaviour
 {
     [SerializeField] GameObject _waveOne, _waveTwo, _waveThree, _boss;
     [SerializeField] GameObject _gamePanel, _abilitySelectionPanel;
-    [SerializeField] Button _startBtn, _restartBtn, _mainMenuBtn, _haltBtn, _pathBtn, _ruleBtn, _starBtn, _zionBtn, _goldBtn,
+    [SerializeField] Button _startBtn, _restartBtn, _mainMenuBtn, _haltBtn, _pathBtn, _ruleBtn, _starBtn, _zionBtn, _goldBtn, _rushBtn, _diveBtn, _massBtn,
         _modZeroBtn, _modOneBtn, _modTwoBtn, _modThreeBtn, _modFourBtn,
                 _chronoBtn, _tempusBtn, _wardenBtn;
     [SerializeField] TMP_Text _abilityTimerTxt, _rechargeTxt,
@@ -19,7 +19,7 @@ public class GameUIManager : MonoBehaviour
     public Image _healthBar;
     float _valueChangeAmount = 0.5f;
     public int _killCount = 0;
-    [SerializeField] TempoSystem _haltTempo, _pathTempo, _ruleTempo, _starTempo, _zionTempo, _goldTempo;
+    [SerializeField] TempoSystem _haltTempo, _pathTempo, _ruleTempo, _starTempo, _zionTempo, _goldTempo, _rushTempo, _diveTempo, _massTempo;
     private void Start()
     {
         ComponentAssignment();
@@ -38,6 +38,9 @@ public class GameUIManager : MonoBehaviour
         _starBtn.onClick.AddListener(StarTempo);
         _zionBtn.onClick.AddListener(ZionTempo);
         _goldBtn.onClick.AddListener(GoldTempo);
+        _rushBtn.onClick.AddListener(RushTempo);
+        _diveBtn.onClick.AddListener(DiveTempo);
+        _massBtn.onClick.AddListener(MassTempo);
         _modZeroBtn.onClick.AddListener(ModZeroSelected);
         _modOneBtn.onClick.AddListener(ModOneSelected);
         _modTwoBtn.onClick.AddListener(ModTwoSelected);
@@ -63,6 +66,9 @@ public class GameUIManager : MonoBehaviour
         _starTempo.enabled = false;
         _zionTempo.enabled = false;
         _goldTempo.enabled = false;
+        _rushTempo.enabled = false;
+        _diveTempo.enabled = false;
+        _massTempo.enabled = false;
         _modOneTxt.text = "Mod1";
         _modTwoTxt.text = "Mod2";
         _modThreeTxt.text = "Mod3";
@@ -133,6 +139,39 @@ public class GameUIManager : MonoBehaviour
         _modTwoTxt.text = "Raw";
         _modThreeTxt.text = "But";
         _modFourTxt.text = "Zen";
+    }
+
+    void RushTempo()
+    {
+        TempoReset();
+        _rushTempo.enabled = true;
+        _tempoSystem = _rushTempo;
+        _modOneTxt.text = "Gem";
+        _modTwoTxt.text = "Ant";
+        _modThreeTxt.text = "Rue";
+        _modFourTxt.text = "Yen";
+    }
+
+    void DiveTempo()
+    {
+        TempoReset();
+        _diveTempo.enabled = true;
+        _tempoSystem = _diveTempo;
+        _modOneTxt.text = "Hex";
+        _modTwoTxt.text = "Ice";
+        _modThreeTxt.text = "Raw";
+        _modFourTxt.text = "Yen";
+    }
+
+    void MassTempo()
+    {
+        TempoReset();
+        _massTempo.enabled = true;
+        _tempoSystem = _massTempo;
+        _modOneTxt.text = "Den";
+        _modTwoTxt.text = "Raw";
+        _modThreeTxt.text = "Cry";
+        _modFourTxt.text = "Ice";
     }
 
     void ModZeroSelected()

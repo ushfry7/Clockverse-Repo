@@ -1,8 +1,4 @@
 using System.Collections;
-using Unity.Mathematics;
-using Unity.VisualScripting;
-using UnityEngine;
-using static UnityEngine.InputSystem.LowLevel.InputStateHistory;
 
 public class RuleTempo : TempoSystem
 {
@@ -54,7 +50,14 @@ public class RuleTempo : TempoSystem
 
     void BasicRuleSelected()
     {
-        //Instantly skip a half second of time.You cannot be affected by anything in the skipped time.Recharges after 2s.
+        // ================= RULE =================
+
+        // Base Rule
+        // Duration: 0.5s
+        // Recharge: 2s
+        // Operation:
+        // Instantly skip 0.5s of time.
+        // You cannot be affected by anything during the skipped time.
         TempoValues(2f, 0.5f, 1, 0, false);
     }
 
@@ -69,7 +72,14 @@ public class RuleTempo : TempoSystem
 
     public void IreRuleSelected()
     {
-        //Ire: Skip 1 second of time instead, and only for yourself.Cooldown increased to 5s.
+        // ================= IRE =================
+
+        // Ire
+        // Duration: 1s
+        // Recharge: 5s
+        // Operation:
+        // Skip 1s of time instead.
+        // The time skip only affects yourself.
         TempoValues(5f, 1f, 1, 0, false);
     }
 
@@ -84,7 +94,14 @@ public class RuleTempo : TempoSystem
 
     public void AntRuleSelected()
     {
-        //Ant: Skip a quarter of a second of time instead, but reduce cooldown by half.
+        // ================= ANT =================
+
+        // Ant
+        // Duration: 0.25s
+        // Recharge: 1s
+        // Operation:
+        // Skip 0.25s of time.
+        // Cooldown is reduced by half.
         TempoValues(1f, 0.25f, 1, 0, false);
     }
 
@@ -99,24 +116,45 @@ public class RuleTempo : TempoSystem
 
     public void VexRuleSelected()
     {
-        //Vex: 2 extra charges, but cooldown increased to 8s per charge.
+        // ================= VEX =================
+
+        // Vex
+        // Duration: 0.5s
+        // Charges: 3
+        // Recharge: 8s per charge
+        // Operation:
+        // Adds 2 extra charges.
+        // Each charge recharges independently after 8s.
         TempoValues(8f, 0.5f, 3, 0, false);
     }
 
     void Vex_Rule()
     {
-        if (_charges > 0)
+        if (_charges == _chargeLimit)
         {
-            StartCoroutine(CoolDownPeriod());
+            StartCoroutine(LargeCoolDownPeriod());
+            _player.RuleTempo(_tempoEffectDuration);
+        }
+        else if (_charges > 0)
+        {
+            _currentCoolDownTimer += _tempoCooldown;
+            _charges--;
             _player.RuleTempo(_tempoEffectDuration);
         }
     }
 
     public void IceRuleSelected()
     {
-        //Gold becomes passive:
-        //Ice: When taking damage within 1 second of using the Tempo, increase cooldown to 5s. 
-        //Otherwise, reduce cooldown to half a second. Can now be held to continuously activate.
+        // ================= ICE =================
+
+        // Ice
+        // Duration: Continuous while held
+        // Recharge: 0.5s normally / 5s if damaged
+        // Operation:
+        // Can be held to continuously activate Rule.
+        // If you take damage within 1s of using Rule,
+        // cooldown becomes 5s.
+        // Otherwise, cooldown becomes 0.5s.
         TempoValues(2f, 0.5f, 1, 0, false);
     }
 
@@ -131,7 +169,7 @@ public class RuleTempo : TempoSystem
 
     public override IEnumerator CoolDownPeriod()
     {
-        if (_currentCoolDownTimer > 1)
+        if (_currentCoolDownTimer > 0)
         {
             if (_player._imuneHit)
             {

@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class StarTempo : TempoSystem
@@ -46,13 +47,14 @@ public class StarTempo : TempoSystem
 
     public void BasicStarSelected()
     {
-        //Base — Star
-        //Effect:
-        //Instantly stop time for enemies.
-        //Enemy time = stopped
-        //Duration = 2s
-        //Cooldown = 8s
-        //No wind - up.
+        // ================= STAR =================
+
+        // Base Star
+        // Duration: 2s
+        // Recharge: 8s
+        // Operation:
+        // Stop enemy time for 2s.
+        // Player time is unaffected.
         TempoValues(8f, 2f, 1, 0, false);
     }
 
@@ -64,42 +66,71 @@ public class StarTempo : TempoSystem
 
     public void RueStarSelected()
     {
-        //Rue:
-        //3s cooldown
-        //But every activation decreases the freeze duration by 0.5s.
-        //The penalty remains until Star hasn't been activated for 12 seconds.
+        // ================= RUE =================
+
+        // Rue
+        // Duration: Starts at 2s
+        // Recharge: 3s
+        // Operation:
+        // Cooldown reduced to 3s.
+        // Every activation reduces duration by 0.5s.
+        // Duration penalty resets after 12s without activation.
         TempoValues(3f, 2f, 1, 0, false);
     }
 
+    float _rueTempoMaxDuration = 2f, _rueCooldownTime = 12f, _currentRueCooldowntimer = 0f;
+    Coroutine _rueSequence;
+
     void Rue_Star()
     {
-        if(_tempoEffectDuration == 2f)
+        if (_charges > 0)
         {
-            _tempoCooldown = 3f;
-            StartCoroutine(CoolDownPeriod());
-            FreezeEnemyTime();
-            _tempoEffectDuration -= 0.5f;
+            _currentRueCooldowntimer = _rueCooldownTime;
+            if (_rueSequence == null || _currentRueCooldowntimer <= 0)
+            {
+                _rueSequence = StartCoroutine(RueResetSequence());
+            }
+            if (_tempoEffectDuration == 2f)
+            {
+                _tempoCooldown = 3f;
+                StartCoroutine(CoolDownPeriod());
+                FreezeEnemyTime();
+                _tempoEffectDuration -= 0.5f;
+            }
+            else if (_tempoEffectDuration > 0.5f)
+            {
+                StartCoroutine(CoolDownPeriod());
+                FreezeEnemyTime();
+                _tempoEffectDuration -= 0.5f;
+            }
+            else if (_tempoEffectDuration == 0.5f)
+            {
+                StartCoroutine(CoolDownPeriod());
+                FreezeEnemyTime();
+            }
         }
-        else if(_tempoEffectDuration > 0.5f)
+    }
+
+    IEnumerator RueResetSequence()
+    {
+        while (_currentRueCooldowntimer > 0)
         {
-            StartCoroutine(CoolDownPeriod());
-            FreezeEnemyTime();
-            _tempoEffectDuration -= 0.5f;
+            _currentRueCooldowntimer -= 0.1f;
+            yield return new WaitForSeconds(0.1f);
         }
-        else if(_tempoEffectDuration == 0.5f)
-        {
-            StartCoroutine(CoolDownPeriod());
-            FreezeEnemyTime();
-            _tempoEffectDuration = 2f;
-            _tempoCooldown = 12f;
-        }
+        _tempoEffectDuration = _rueTempoMaxDuration;
     }
 
     public void FoeStarSelected()
     {
-        //Foe = Resentment
-        //Instead of freezing everyone:
-        //Star only affects the enemy closest to your cursor.
+        // ================= FOE =================
+
+        // Foe
+        // Duration: 3s
+        // Recharge: 8s
+        // Operation:
+        // Only affect the enemy closest to the cursor/aim.
+        // Increase duration to 3s.
         TempoValues(8f, 3f, 1, 0, false);
     }
 
@@ -152,10 +183,14 @@ public class StarTempo : TempoSystem
 
     public void AntStarSelected()
     {
-        //Ant = Insignificance
-        //Everything is weaker:
-        //2s → 1s freeze
-        //8s → 4s cooldown
+        // ================= ANT =================
+
+        // Ant
+        // Duration: 1s
+        // Recharge: 4s
+        // Operation:
+        // Duration halved from 2s to 1s.
+        // Cooldown halved from 8s to 4s.
         TempoValues(4f, 1f, 1, 0, false);
     }
 
@@ -167,17 +202,16 @@ public class StarTempo : TempoSystem
 
     public void PayStarSelected()
     {
-        //Pay = Vengeance
+        // ================= PAY =================
 
-        //Instead:
-        //TAKE DAMAGE
-        //     ↓
-        //+25 % STAR CHARGE
-        //And:
-        //DEAL 1 DAMAGE
-        //     ↓
-        //+2 % STAR CHARGE
-        //You cannot recharge Star while Star is currently active.
+        // Pay
+        // Duration: 2s
+        // Recharge: Damage-based
+        // Operation:
+        // Taking damage gives 25% charge.
+        // Dealing 1 damage gives 2% charge.
+        // Does not recharge passively.
+        // Cannot recharge while Star is active.
         TempoValues(0, 2f, 1, 0, false);
     }
 

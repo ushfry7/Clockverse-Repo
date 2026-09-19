@@ -1,5 +1,3 @@
-using System.Collections;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class HalfTempo : TempoSystem
@@ -52,11 +50,14 @@ public class HalfTempo : TempoSystem
 
     public void BasicHaltSelected()
     {
-        //Base — Halt
-        //Purpose: Stop your own time.
-        //Duration: 5 seconds
-        //Cooldown: 20 seconds
-        //It affects you, not the enemies.
+        // ================= HALT =================
+
+        // Base Halt
+        // Duration: 5s
+        // Recharge: 20s
+        // Operation:
+        // Stop enemy time for 5s.
+        // Player time is unaffected.
         TempoValues(20f, 5f, 1, 0, false);
     }
 
@@ -65,15 +66,24 @@ public class HalfTempo : TempoSystem
         if (_charges > 0)
         {
             StartCoroutine(CoolDownPeriod());
-            _player.HaltTempo(_tempoEffectDuration);
+            foreach (BaseEnemyAI enemy in FindObjectsByType<BaseEnemyAI>(FindObjectsSortMode.None))
+            {
+                enemy.SlowDown(_tempoEffectDuration, 100f);
+            }
         }
     }
 
     public void IreHaltSelected()
     {
-        //Ire = Rage
-        //Halt duration: 5s → 7.5s
-        //Cooldown: 20s → 28s
+
+        // ================= IRE =================
+
+        // Ire
+        // Duration: 7.5s
+        // Recharge: 28s
+        // Operation:
+        // Increase enemy time-stop duration to 7.5s.
+        // Recharge time increased to 28s.
         TempoValues(28f, 7.5f, 1, 0, false);
     }
 
@@ -82,15 +92,24 @@ public class HalfTempo : TempoSystem
         if (_charges > 0)
         {
             StartCoroutine(CoolDownPeriod());
-            _player.HaltTempo(_tempoEffectDuration);
+            foreach (BaseEnemyAI enemy in FindObjectsByType<BaseEnemyAI>(FindObjectsSortMode.None))
+            {
+                enemy.SlowDown(_tempoEffectDuration, 100f);
+            }
         }
     }
 
     public void JoyHaltSelected()
     {
-        //The duration becomes shorter:
-        //Halt duration = 3s
-        //But instead of relying only on normal recharge, using another ability charges Halt by 50 % of that ability's cooldown
+        // ================= JOY =================
+
+        // Joy
+        // Duration: 3s
+        // Recharge: Ability-based
+        // Operation:
+        // Duration reduced to 3s.
+        // Using another ability charges Halt by 50% of that ability's cooldown.
+        // Example: 10s ability cooldown = +5s Halt charge.
         _timeInfluence = true;
         TempoValues(20f, 3f, 1, 0, false);
     }
@@ -100,16 +119,23 @@ public class HalfTempo : TempoSystem
         if (_charges > 0)
         {
             StartCoroutine(CoolDownPeriod());
-            _player.HaltTempo(_tempoEffectDuration);
+            foreach (BaseEnemyAI enemy in FindObjectsByType<BaseEnemyAI>(FindObjectsSortMode.None))
+            {
+                enemy.SlowDown(_tempoEffectDuration, 100f);
+            }
         }
     }
 
     public void CryHaltSelected()
     {
-        //Cry = Sorrow
-        //Cry makes the Tempo passive.
-        //Cooldown becomes 15s
-        //Halt automatically activates when it comes off cooldown.
+        // ================= CRY =================
+
+        // Cry
+        // Duration: 5s
+        // Recharge: 15s
+        // Operation:
+        // Cooldown reduced to 15s.
+        // Automatically activates immediately when the cooldown finishes.
         TempoValues(15f, 5f, 1, 0, true);
         Cry_Halt();
     }
@@ -119,35 +145,45 @@ public class HalfTempo : TempoSystem
         if (_charges > 0)
         {
             StartCoroutine(CoolDownPeriod());
+            foreach (BaseEnemyAI enemy in FindObjectsByType<BaseEnemyAI>(FindObjectsSortMode.None))
+            {
+                enemy.SlowDown(_tempoEffectDuration, 100f);
+            }
         }
     }
 
     public void VexHaltSelected()
     {
-        //Vex = Irritation
-        //Adds 2 extra charges
-        //Cooldown becomes 40s per charge.
-        TempoValues(40f, 5f, 2, 0, false);
+        // ================= VEX =================
+
+        // Vex
+        // Duration: 5s
+        // Charges: 3
+        // Recharge: 40s per charge
+        // Operation:
+        // Adds 2 extra charges.
+        // Each charge has its own 40s recharge.
+        TempoValues(40f, 5f, 3, 0, false);
     }
 
     void Vex_Halt()
     {
-        if (_charges > 0)
+        if (_charges == _chargeLimit)
         {
-            _player.HaltTempo(_tempoEffectDuration);
+            StartCoroutine(LargeCoolDownPeriod());
+            foreach (BaseEnemyAI enemy in FindObjectsByType<BaseEnemyAI>(FindObjectsSortMode.None))
+            {
+                enemy.SlowDown(_tempoEffectDuration, 100f);
+            }
         }
-        else
+        else if (_charges > 0)
         {
-            StartCoroutine(CoolDownPeriod());
+            _currentCoolDownTimer += _tempoCooldown;
+            _charges--;
+            foreach (BaseEnemyAI enemy in FindObjectsByType<BaseEnemyAI>(FindObjectsSortMode.None))
+            {
+                enemy.SlowDown(_tempoEffectDuration, 100f);
+            }
         }
-    }
-
-    public override IEnumerator CoolDownPeriod()
-    {
-        if (_epochSelected == 3)
-        {
-            Cry_Halt();
-        }
-        return base.CoolDownPeriod();
     }
 }

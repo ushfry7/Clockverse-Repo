@@ -91,6 +91,11 @@ public class BaseEnemyAI : MonoBehaviour
         _haveTakenDamage = true;
     }
 
+    public bool IsHealthy()
+    {
+        return _currentHealth > _maxHealth * 0.25f;
+    }
+
     void Strike()
     {
         if (Physics.Raycast(transform.position, transform.forward, out _hit, _hitMaxDistance))
@@ -114,7 +119,7 @@ public class BaseEnemyAI : MonoBehaviour
         _animator.speed -= (_animator.speed * _slowDown / 100);
     }
 
-    public void SlowDown(float _duration, float _slowDown, float _delay = 0, bool _continous = false, float _activationDelay = 0)
+    public void SlowDown(float _duration, float _slowDown = 0, float _delay = 0, bool _continous = false, float _activationDelay = 0)
     {
         StartCoroutine(SlowDownTempo(_duration, _slowDown, _delay, _continous, _activationDelay));
     }
@@ -132,9 +137,19 @@ public class BaseEnemyAI : MonoBehaviour
         {
             yield return new WaitForSeconds(_duration);
         }
-        yield return new WaitForSeconds(_delay);
-        _agent.speed = _speed;
-        _animator.speed = 1f;
+        if (_delay > 0)
+        {
+            while (_animator.speed != 1f || _agent.speed != _speed)
+            {
+                _agent.speed = Mathf.MoveTowards(_agent.speed, _speed, _delay * Time.deltaTime);
+                _animator.speed = Mathf.MoveTowards(_animator.speed, 1f, _delay * Time.deltaTime);
+            }
+        }
+        else
+        {
+            _agent.speed = _speed;
+            _animator.speed = _speed;
+        }
     }
 
     public void Freeze(float value)
