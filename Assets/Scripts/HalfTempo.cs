@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class HalfTempo : TempoSystem
@@ -58,7 +59,7 @@ public class HalfTempo : TempoSystem
         // Operation:
         // Stop enemy time for 5s.
         // Player time is unaffected.
-        TempoValues(20f, 5f, 1, 0, false);
+        TempoValues(25f, 5f, 1, 0, false);
     }
 
     void Basic_Halt()
@@ -84,7 +85,7 @@ public class HalfTempo : TempoSystem
         // Operation:
         // Increase enemy time-stop duration to 7.5s.
         // Recharge time increased to 28s.
-        TempoValues(28f, 7.5f, 1, 0, false);
+        TempoValues(35.5f, 7.5f, 1, 0, false);
     }
 
     void Ire_Halt()
@@ -111,7 +112,7 @@ public class HalfTempo : TempoSystem
         // Using another ability charges Halt by 50% of that ability's cooldown.
         // Example: 10s ability cooldown = +5s Halt charge.
         _timeInfluence = true;
-        TempoValues(20f, 3f, 1, 0, false);
+        TempoValues(23f, 3f, 1, 0, false);
     }
 
     void Joy_Halt()
@@ -136,8 +137,8 @@ public class HalfTempo : TempoSystem
         // Operation:
         // Cooldown reduced to 15s.
         // Automatically activates immediately when the cooldown finishes.
-        TempoValues(15f, 5f, 1, 0, true);
-        Cry_Halt();
+        TempoValues(20f, 5f, 1, 0, true);
+        StartCoroutine(Cry_halt_Sequence());
     }
 
     void Cry_Halt()
@@ -152,6 +153,16 @@ public class HalfTempo : TempoSystem
         }
     }
 
+    IEnumerator Cry_halt_Sequence()
+    {
+        yield return new WaitForSeconds(1f);
+        while (Time.timeScale > 0)
+        {
+            Cry_Halt();
+            yield return new WaitForSeconds(1f);
+        }
+    }
+
     public void VexHaltSelected()
     {
         // ================= VEX =================
@@ -163,7 +174,7 @@ public class HalfTempo : TempoSystem
         // Operation:
         // Adds 2 extra charges.
         // Each charge has its own 40s recharge.
-        TempoValues(40f, 5f, 3, 0, false);
+        TempoValues(45f, 5f, 3, 0, false);
     }
 
     void Vex_Halt()

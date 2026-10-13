@@ -32,15 +32,20 @@ public class StarTempo : TempoSystem
         base.EpochCall();
         switch (_epochSelected)
         {
-            case 1: Rue_Star();
+            case 1:
+                Rue_Star();
                 break;
-            case 2: Foe_Star();
+            case 2:
+                Foe_Star();
                 break;
-            case 3: Ant_Star();
+            case 3:
+                Ant_Star();
                 break;
-            case 4: Pay_Star();
+            case 4:
+                Pay_Star();
                 break;
-            default: Basic_Star();
+            default:
+                Basic_Star();
                 break;
         }
     }
@@ -55,7 +60,7 @@ public class StarTempo : TempoSystem
         // Operation:
         // Stop enemy time for 2s.
         // Player time is unaffected.
-        TempoValues(8f, 2f, 1, 0, false);
+        TempoValues(10f, 2f, 1, 0, false);
     }
 
     void Basic_Star()
@@ -75,7 +80,7 @@ public class StarTempo : TempoSystem
         // Cooldown reduced to 3s.
         // Every activation reduces duration by 0.5s.
         // Duration penalty resets after 12s without activation.
-        TempoValues(3f, 2f, 1, 0, false);
+        TempoValues(5f, 2f, 1, 0, false);
     }
 
     float _rueTempoMaxDuration = 2f, _rueCooldownTime = 12f, _currentRueCooldowntimer = 0f;
@@ -131,16 +136,25 @@ public class StarTempo : TempoSystem
         // Operation:
         // Only affect the enemy closest to the cursor/aim.
         // Increase duration to 3s.
-        TempoValues(8f, 3f, 1, 0, false);
+        TempoValues(11f, 3f, 1, 0, false);
     }
 
     void Foe_Star()
     {
+        if (_charges > 0)
+        {
+            StartCoroutine(CoolDownPeriod());
+            Foe_Star_target();
+        }
+    }
+
+    void Foe_Star_target()
+    {
         Vector3 screenCenter = new Vector3(
-            Screen.width * 0.5f,
-            Screen.height * 0.5f,
-            0f
-        );
+           Screen.width * 0.5f,
+           Screen.height * 0.5f,
+           0f
+       );
 
         Ray ray = Camera.main.ScreenPointToRay(screenCenter);
 
@@ -191,7 +205,7 @@ public class StarTempo : TempoSystem
         // Operation:
         // Duration halved from 2s to 1s.
         // Cooldown halved from 8s to 4s.
-        TempoValues(4f, 1f, 1, 0, false);
+        TempoValues(5f, 1f, 1, 0, false);
     }
 
     void Ant_Star()
@@ -213,13 +227,30 @@ public class StarTempo : TempoSystem
         // Does not recharge passively.
         // Cannot recharge while Star is active.
         TempoValues(0, 2f, 1, 0, false);
+        ChargeIncrease(100);
+    }
+
+    public void ChargeIncrease(int _amount)
+    {
+        _currentRecharge += _amount;
+        if (_currentRecharge >= 100f)
+        {
+            _charges = _chargeLimit;
+        }
+        else
+        {
+            _charges = 0;
+        }
+        _gameUIManager.TimerUpdate();
     }
 
     void Pay_Star()
     {
-        if(_currentRecharge >= 100)
+        if (_currentRecharge >= 100)
         {
             FreezeEnemyTime();
+            _currentRecharge = 0;
+            _gameUIManager.TimerUpdate();
         }
     }
 

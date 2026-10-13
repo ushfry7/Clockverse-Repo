@@ -60,7 +60,7 @@ public class RushTempo : TempoSystem
         // Operation:
         // Increase player's time speed to 4x.
         // Effect continues while the button is held, up to 1s.
-        TempoValues(10f, 1f, 1, 0, false);
+        TempoValues(11f, 1f, 1, 0, false);
     }
 
     void Basic_Rush()
@@ -81,7 +81,7 @@ public class RushTempo : TempoSystem
         // Operation:
         // Player time speed = 6x.
         // Outside Rush, player time speed = 75%.
-        TempoValues(7.5f, 1f, 1, 0, false);
+        TempoValues(8.5f, 1f, 1, 0, false);
         _multiplier = 6f;
         _normal = 0.75f;
         _player._speedMultiplier = _normal;
@@ -106,7 +106,7 @@ public class RushTempo : TempoSystem
         // Recharge: 4s
         // Operation:
         // Player time speed = 2x.
-        TempoValues(4f, 1f, 1, 0, false);
+        TempoValues(5f, 1f, 1, 0, false);
     }
 
     void Ant_Rush()
@@ -128,7 +128,7 @@ public class RushTempo : TempoSystem
         // Operation:
         // Each activation reduces the time-speed multiplier by 1x.
         // Multiplier returns to normal after 10s without using Rush.
-        TempoValues(5f, 1f, 3, 0, true);
+        TempoValues(6f, 1f, 3, 0, true);
     }
 
     float _rueMaxMulti = 4f, _rueCooldownTime = 10f, _currentRueMulti = 4f, _currentRueCooldowntimer = 0f;
@@ -176,7 +176,7 @@ public class RushTempo : TempoSystem
         // At 0% charge = 25% effectiveness.
         // Every 1% charge increases effectiveness by 2%.
         // Maximum effectiveness = 225%.
-        TempoValues(12f, 1f, 1, 0, false);
+        TempoValues(13f, 1f, 1, 0, false);
     }
 
     float _effectiveness = 0, _effectivenessMultiplier = 0.25f;
@@ -188,5 +188,11 @@ public class RushTempo : TempoSystem
             StartCoroutine(CoolDownPeriod());
             _player.RushTempo(_tempoEffectDuration, _multiplier * _effectiveness, _normal);
         }
+    }
+
+    public override void StopALL()
+    {
+        base.StopALL();
+        _currentRueMulti = _rueMaxMulti;
     }
 }

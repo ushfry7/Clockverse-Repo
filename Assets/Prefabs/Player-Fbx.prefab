@@ -989,6 +989,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a0ceff5749103ac4e9ca0ab3ee31d1d3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BasePlayerController
+  _cloneModal: {fileID: 5408172420806875469}
   _orientation: {fileID: 3037418507639548440}
   _followCamera: {fileID: 6204756902365129374}
   _groundLayerMask:
@@ -997,16 +998,21 @@ MonoBehaviour:
   _drag: 7
   _walkForce: 47
   _sprintForce: 95
-  _jumpForce: 10
   _downwardForce: 30
-  _staminaRegain: 20
-  _staminaDrain: 8
-  _speedMultiplier: 1
   _hitMaxDistance: 3
   _baseDamage: 10
   _currentDamage: 0
+  _currentHealth: 0
+  _speedMultiplier: 1
   _comboCount: 2
+  _animator: {fileID: 0}
+  _inputDir: {x: 0, y: 0, z: 0}
+  _canMove: 1
+  _clone: 0
   _attacking: 0
+  _imune: 0
+  _imuneHit: 0
+  _tookHit: 0
 --- !u!1 &8306800603560598374 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3786250596407181178, guid: b72ca6c4f82f75142afb09eee8467f08, type: 3}

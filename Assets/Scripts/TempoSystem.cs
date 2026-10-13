@@ -18,7 +18,8 @@ public class TempoSystem : MonoBehaviour
 
     public virtual void EpochSelect()
     {
-
+        _currentCoolDownTimer = 0f;
+        _charges = _chargeLimit;
     }
 
     public virtual void EpochCall()
@@ -37,17 +38,17 @@ public class TempoSystem : MonoBehaviour
         _canCalledEarly = _callEarly;
     }
 
-
+    public float _decreaseAmount = 1;
     public virtual IEnumerator CoolDownPeriod()
     {
         _charges -= 1;
         _currentCoolDownTimer = _tempoCooldown;
         while (_currentCoolDownTimer > 0)
         {
-            _currentCoolDownTimer--;
+            _currentCoolDownTimer -= _decreaseAmount;
             _gameUIManager.TimerUpdate();
             yield return new WaitForSeconds(1f);
-            if (_currentCoolDownTimer == 0)
+            if (_currentCoolDownTimer <= 0)
             {
                 if (_charges < _chargeLimit)
                 {
@@ -55,6 +56,7 @@ public class TempoSystem : MonoBehaviour
                 }
             }
         }
+        _gameUIManager.TimerUpdate();
     }
 
     public IEnumerator LargeCoolDownPeriod()
@@ -79,5 +81,11 @@ public class TempoSystem : MonoBehaviour
                 _charges++;
             }
         }
+        _gameUIManager.TimerUpdate();
+    }
+
+    public virtual void StopALL()
+    {
+        StopAllCoroutines();
     }
 }

@@ -60,7 +60,7 @@ public class DiveTempo : TempoSystem
         // Operation:
         // After a 2s windup, completely stop time.
         // Can deactivate early and retain the remaining charge.
-        TempoValues(40f, 10f, 1, 2, false);
+        TempoValues(50f, 10f, 1, 2, false);
     }
 
     void Basic_Dive()
@@ -88,7 +88,7 @@ public class DiveTempo : TempoSystem
         // After deactivation, time gradually returns to normal over 5s.
         // Player time speed during recovery = 90%
         // (because active slowdown is 100%).
-        TempoValues(40f, 10f, 1, 0, false);
+        TempoValues(50f, 10f, 1, 0, false);
     }
 
     void Hex_Dive()
@@ -107,7 +107,7 @@ public class DiveTempo : TempoSystem
     IEnumerator Hex_Dive_Sequence()
     {
         yield return new WaitForSeconds(12f);
-        _player.PlayerSlowDown(90f);
+        _player.PlayerSlowDown(10f);
         yield return new WaitForSeconds(5f);
         _player.Normal();
     }
@@ -127,7 +127,7 @@ public class DiveTempo : TempoSystem
         // If no qualifying enemy is killed,
         // cooldown becomes 60s after deactivation.
         _timeInfluence = true;
-        TempoValues(40f, 10f, 1, 2, false);
+        TempoValues(50f, 10f, 1, 2, false);
     }
 
     ArrayList _healthyEnemy = new ArrayList();
@@ -150,6 +150,7 @@ public class DiveTempo : TempoSystem
 
     IEnumerator Ice_Sequence()
     {
+        _tempoCooldown = 50f;
         bool _continue = true;
         while (_charges == 0 && _continue)
         {
@@ -157,13 +158,16 @@ public class DiveTempo : TempoSystem
             {
                 if (!enemy.gameObject.activeSelf)
                 {
-                    _tempoCooldown = 30f;
+                    _tempoCooldown = 40f;
                     _continue = false;
                 }
             }
             yield return new WaitForSeconds(0.1f);
         }
-        _tempoCooldown = 60f;
+        if (_tempoCooldown != 40f)
+        {
+            _tempoCooldown = 70f;
+        }
     }
 
     public void RawDiveSelected()
@@ -178,7 +182,7 @@ public class DiveTempo : TempoSystem
         // Early deactivation is disabled.
         // The normal 2s windup becomes part of the active duration.
         // Time stop begins immediately.
-        TempoValues(40f, 12f, 1, 0, true);
+        TempoValues(52f, 12f, 1, 0, true);
     }
 
     void Raw_Dive()

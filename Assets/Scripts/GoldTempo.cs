@@ -115,7 +115,7 @@ public class GoldTempo : TempoSystem
     {
         foreach (BaseEnemyAI enemy in FindObjectsByType<BaseEnemyAI>(FindObjectsSortMode.None))
         {
-            enemy.SlowDown(_tempoEffectDuration, 90f, 1, true);
+            enemy.SlowDown(_tempoEffectDuration, 90f, 1f, true);
         }
     }
 

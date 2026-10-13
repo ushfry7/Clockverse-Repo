@@ -56,7 +56,7 @@ public class ZionTempo : TempoSystem
         // Operation:
         // Gradually increase player's time speed up to 2x.
         // After the effect ends, time speed decays back to normal.
-        TempoValues(40f, 20f, 1, 0, false);
+        TempoValues(60f, 20f, 1, 0, false);
     }
 
     void Basic_Zion()
@@ -78,7 +78,7 @@ public class ZionTempo : TempoSystem
         // Operation:
         // Duration, windup, wind-down and cooldown are reduced to 25%.
         // Time speed effect remains the same.
-        TempoValues(10f, 5f, 1, 0, false);
+        TempoValues(15f, 5f, 1, 0, false);
     }
 
     void Ant_Zion()
@@ -100,7 +100,7 @@ public class ZionTempo : TempoSystem
         // Operation:
         // Permanently increase player's time speed by 25%.
         // Disables all other Zion behavior.
-        TempoValues(10f, 5f, 1, 0, true);
+        TempoValues(0f, 0f, 0, 0, true);
         Cry_Zion();
     }
 
@@ -124,7 +124,7 @@ public class ZionTempo : TempoSystem
         // Operation:
         // Player time speed increases to 3x instead of 2x.
         // Outside Zion, player's time speed is reduced by 20%.
-        TempoValues(40f, 20f, 1, 0, false);
+        TempoValues(60f, 20f, 1, 0, false);
         _player._speedMultiplier = 0.8f;
         _player._animator.speed = 0.8f;
     }
@@ -149,7 +149,7 @@ public class ZionTempo : TempoSystem
         // Can deactivate Zion early.
         // Unused charge is retained.
         // Recharge time increased to 60s.
-        TempoValues(60f, 20f, 1, 0, false);
+        TempoValues(80f, 20f, 1, 0, false);
     }
 
     void But_Zion()

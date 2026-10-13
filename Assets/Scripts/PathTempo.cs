@@ -60,7 +60,7 @@ public class PathTempo : TempoSystem
         // Operation:
         // Reduce enemy time speed to 50%.
         // Charges recharge independently/simultaneously.
-        TempoValues(30f, 6f, 3, 0, false);
+        TempoValues(36f, 6f, 3, 0, false);
     }
 
     void Basic_Path()
@@ -94,7 +94,7 @@ public class PathTempo : TempoSystem
         // Recharge: 60s per charge
         // Operation:
         // Double the charge count and recharge time.
-        TempoValues(60f, 6f, 6, 0, false);
+        TempoValues(66f, 6f, 6, 0, false);
     }
 
     void Vex_Path()
@@ -128,27 +128,29 @@ public class PathTempo : TempoSystem
         // Operation:
         // Every 6s, enemy time speed switches between:
         // Normal (100%) and 33% slower (67%).
-        TempoValues(6f, 6f, 1, 0, true);
-        Cry_Path();
+        TempoValues(12f, 6f, 1, 0, true);
+        StartCoroutine(Cry_Path_Sequence());
     }
 
     void Cry_Path()
     {
         if (_charges > 0)
         {
-            StartCoroutine(Cry_Path_Sequence());
+            StartCoroutine(CoolDownPeriod());
+            foreach (BaseEnemyAI enemy in FindObjectsByType<BaseEnemyAI>(FindObjectsSortMode.None))
+            {
+                enemy.SlowDown(_tempoEffectDuration, 33f);
+            }
         }
     }
 
     IEnumerator Cry_Path_Sequence()
     {
-        while (true)
+        yield return new WaitForSeconds(1f);
+        while (Time.timeScale > 0)
         {
-            foreach (BaseEnemyAI enemy in FindObjectsByType<BaseEnemyAI>(FindObjectsSortMode.None))
-            {
-                enemy.SlowDown(_tempoEffectDuration, 33f);
-            }
-            yield return new WaitForSeconds(_tempoEffectDuration * 2);
+            Cry_Path();
+            yield return new WaitForSeconds(1f);
         }
     }
 
@@ -164,7 +166,7 @@ public class PathTempo : TempoSystem
         // Operation:
         // Only one charge.
         // Reduce recharge time to 8s.
-        TempoValues(8f, 6f, 1, 0, false);
+        TempoValues(14f, 6f, 1, 0, false);
     }
 
     void Ant_Path()
@@ -191,7 +193,7 @@ public class PathTempo : TempoSystem
         // Cooldown reduced to 20s.
         // Charges cannot stack.
         // Next charge cannot recharge until current cooldown finishes.
-        TempoValues(20f, 6f, 1, 0, false);
+        TempoValues(26f, 6f, 1, 0, false);
     }
 
     void Gap_Path()

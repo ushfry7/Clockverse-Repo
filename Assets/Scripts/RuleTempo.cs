@@ -58,7 +58,7 @@ public class RuleTempo : TempoSystem
         // Operation:
         // Instantly skip 0.5s of time.
         // You cannot be affected by anything during the skipped time.
-        TempoValues(2f, 0.5f, 1, 0, false);
+        TempoValues(2.5f, 0.5f, 1, 0, false);
     }
 
     void Basic_Rule()
@@ -80,7 +80,7 @@ public class RuleTempo : TempoSystem
         // Operation:
         // Skip 1s of time instead.
         // The time skip only affects yourself.
-        TempoValues(5f, 1f, 1, 0, false);
+        TempoValues(6f, 1f, 1, 0, false);
     }
 
     void Ire_Rule()
@@ -102,7 +102,7 @@ public class RuleTempo : TempoSystem
         // Operation:
         // Skip 0.25s of time.
         // Cooldown is reduced by half.
-        TempoValues(1f, 0.25f, 1, 0, false);
+        TempoValues(1.25f, 0.25f, 1, 0, false);
     }
 
     void Ant_Rule()
@@ -125,7 +125,7 @@ public class RuleTempo : TempoSystem
         // Operation:
         // Adds 2 extra charges.
         // Each charge recharges independently after 8s.
-        TempoValues(8f, 0.5f, 3, 0, false);
+        TempoValues(8.5f, 0.5f, 3, 0, false);
     }
 
     void Vex_Rule()
@@ -155,7 +155,7 @@ public class RuleTempo : TempoSystem
         // If you take damage within 1s of using Rule,
         // cooldown becomes 5s.
         // Otherwise, cooldown becomes 0.5s.
-        TempoValues(2f, 0.5f, 1, 0, false);
+        TempoValues(2.5f, 0.5f, 1, 0, false);
     }
 
     void Ice_Rule()

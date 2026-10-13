@@ -61,7 +61,7 @@ public class MassTempo : TempoSystem
         // Closer enemies = more affected by time slowdown.
         // Farther enemies = less affected.
         // Exact radius / slowdown curve is not specified in GDD.
-        TempoValues(30f, 10f, 1, 0, false);
+        TempoValues(40f, 10f, 1, 0, false);
     }
 
     void Basic_Mass()
@@ -84,7 +84,7 @@ public class MassTempo : TempoSystem
         // Flip the distance relationship.
         // Time is slowed depending on how far the target is from things.
         // TODO: Define exact distance calculation.
-        TempoValues(30f, 10f, 1, 0, false);
+        TempoValues(40f, 10f, 1, 0, false);
     }
 
     void Den_Mass()
@@ -106,7 +106,7 @@ public class MassTempo : TempoSystem
         // Operation:
         // Slow time for everything around the player.
         // Player also receives 20% of the slowdown.
-        TempoValues(30f, 10f, 1, 0, false);
+        TempoValues(40f, 10f, 1, 0, false);
     }
 
     void Raw_Mass()
@@ -150,7 +150,7 @@ public class MassTempo : TempoSystem
         // Maximum slowdown becomes a complete time stop.
         // Enemies sufficiently far away are sped up instead.
         // Effect radius is decreased.
-        TempoValues(30,10f, 1, 0, false);
+        TempoValues(40f, 10f, 1, 0, false);
     }
 
     void Ice_Mass()
@@ -162,45 +162,33 @@ public class MassTempo : TempoSystem
         }
     }
 
+
     private IEnumerator MassCoroutine(float _maxSlowDown, bool _opposite = false, bool _permanent = false)
     {
-        float duration = _tempoEffectDuration;
-        float timer = 0f;
-        while (timer < duration || _permanent)
+        float _duration = _tempoEffectDuration;
+        float _timer = 0f;
+        while (_permanent || _timer < _duration)
         {
             foreach (BaseEnemyAI enemy in FindObjectsByType<BaseEnemyAI>(FindObjectsSortMode.None))
             {
-                if (enemy == null)
-                    continue;
+                float _distance = Vector3.Distance(_player.transform.position, enemy.transform.position);
+                float _slowdown = !_opposite
+                    ? Mathf.Clamp(_maxSlowDown - (_distance * 10f), 0f, _maxSlowDown)
+                    : Mathf.Clamp(_distance * 10f, 0f, _maxSlowDown);
 
-                float distance = Vector3.Distance(transform.position, enemy.transform.position);
-
-                // Convert distance into slowdown.
-                // 0 distance = 90% slowdown
-                // Further away = less slowdown
-                if (!_opposite)
-                {
-                    float _slowdown = Mathf.Clamp(
-                        _maxSlowDown - (distance * 10f),
-                        0f,
-                        _maxSlowDown
-                    );
-                    enemy.PermanentSlow(_slowdown);
-                }
-                else
-                {
-                    float _slowdown = Mathf.Clamp(
-                        distance * 10f,
-                        0f,
-                        _maxSlowDown
-                    );
-                    enemy.PermanentSlow(_slowdown);
-                }
+                enemy.MassSlowDown(_slowdown);
             }
-
-            timer += 0.1f;
+            if (!_permanent)
+            {
+                _timer += 0.1f;
+            }
             yield return new WaitForSeconds(0.1f);
+        }
+        foreach (BaseEnemyAI enemy in FindObjectsByType<BaseEnemyAI>(FindObjectsSortMode.None))
+        {
+            enemy.Normal();
         }
         _player.Normal();
     }
+
 }
