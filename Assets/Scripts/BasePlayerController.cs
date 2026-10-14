@@ -333,7 +333,7 @@ public class BasePlayerController : MonoBehaviour
     {
         for (int i = 0; i < _cloneNumber; i++)
         {
-            _playerClone = Instantiate(_cloneModal, transform.position, transform.rotation).GetComponent<BasePlayerController>();
+            _playerClone = Instantiate(_cloneModal, transform.position + transform.forward * 2f, transform.rotation).GetComponent<BasePlayerController>();
             _playerClone.StartCoroutine(_playerClone.DirtSequence(_duration));
         }
     }
@@ -394,7 +394,7 @@ public class BasePlayerController : MonoBehaviour
     {
         for (int i = 0; i < _cloneNumber; i++)
         {
-            _playerAiClone = Instantiate(_cloneAiModal, transform.position, transform.rotation).GetComponent<BaseEnemyAI>();
+            _playerAiClone = Instantiate(_cloneAiModal, transform.position + transform.forward * 2f, transform.rotation).GetComponent<BaseEnemyAI>();
             _playerAiClone.TargetTypeEnemy();
             _playerAiClone.PermanentSlow(_speedDifference);
             _playerAiClone.PermanentSpeedUp(_speedUp);
