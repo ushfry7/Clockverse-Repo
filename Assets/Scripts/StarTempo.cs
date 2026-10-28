@@ -227,6 +227,7 @@ public class StarTempo : TempoSystem
         // Does not recharge passively.
         // Cannot recharge while Star is active.
         TempoValues(0, 2f, 1, 0, false);
+        _gameUIManager.CooldownTextTypeChange(false);
         ChargeIncrease(100);
     }
 

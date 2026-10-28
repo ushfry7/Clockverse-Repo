@@ -18,7 +18,7 @@ public class BasePlayerController : MonoBehaviour
     public bool _canMove = true, _clone = false, _ai;
     GameUIManager _gameUIManager;
     BasePlayerController _playerClone;
-
+    Vector3 _startPos;
     BaseEnemyAI _playerAiClone;
     public GameObject _swapClone;
     public bool _attacking = false, _imune = false, _imuneHit = false;
@@ -39,6 +39,7 @@ public class BasePlayerController : MonoBehaviour
         _moveForce = _walkForce;
         _currentHealth = _maxHealth;
         _currentDamage = _baseDamage;
+        _startPos = transform.position;
     }
     // Update is called once per frame
     void Update()
@@ -321,7 +322,7 @@ public class BasePlayerController : MonoBehaviour
         }
         else
         {
-            _swapClone = FindFirstObjectByType<DirtTempo>().DirtClone(FindObjectsByType<BasePlayerController>(FindObjectsSortMode.None));
+            _swapClone = FindFirstObjectByType<DirtTempo>().CloneSwap(FindObjectsByType<BasePlayerController>(FindObjectsSortMode.None));
             if (_swapClone != null)
             {
                 _followCamera.GetComponent<CinemachineCamera>().Target.TrackingTarget = _swapClone.transform;
@@ -360,7 +361,7 @@ public class BasePlayerController : MonoBehaviour
         {
             ResetDiscClone(_swapClone);
         }
-        _swapClone = FindFirstObjectByType<DiscTempo>().DiscClone(FindObjectsByType<BasePlayerController>(FindObjectsSortMode.None));
+        _swapClone = FindFirstObjectByType<DiscTempo>().CloneSwap(FindObjectsByType<BasePlayerController>(FindObjectsSortMode.None));
         if (_swapClone == null)
             return;
 
@@ -408,6 +409,18 @@ public class BasePlayerController : MonoBehaviour
         }
     }
 
+    public void RailTempo(bool _clone = true, float _freezeTime = 0f)
+    {
+        if (_clone)
+        {
+            _playerAiClone = Instantiate(_cloneAiModal, transform.position + transform.forward * 2f, transform.rotation).GetComponent<BaseEnemyAI>();
+            _playerAiClone.TargetTypeEnemy();
+            if (_freezeTime != 0)
+            {
+                _playerAiClone.Freeze(_freezeTime);
+            }
+        }
+        transform.position = _startPos;
+    }
+
 }
-
-

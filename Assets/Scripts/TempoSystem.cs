@@ -88,4 +88,19 @@ public class TempoSystem : MonoBehaviour
     {
         StopAllCoroutines();
     }
+
+    private int _currentCloneIndex = -1;
+    public GameObject CloneSwap(BasePlayerController[] _clones)
+    {
+        if (_clones == null || _clones.Length == 0)
+            return null;
+        for (int i = 0; i < _clones.Length; i++)
+        {
+            _currentCloneIndex = (_currentCloneIndex + 1) % _clones.Length;
+            GameObject _clone = _clones[_currentCloneIndex].gameObject;
+            if (_clone != null && _clone.activeInHierarchy)
+                return _clone;
+        }
+        return null;
+    }
 }

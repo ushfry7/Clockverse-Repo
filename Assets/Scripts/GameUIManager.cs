@@ -8,7 +8,7 @@ public class GameUIManager : MonoBehaviour
 {
     [SerializeField] GameObject _waveOne, _waveTwo, _waveThree, _boss;
     [SerializeField] GameObject _gamePanel, _abilitySelectionPanel;
-    [SerializeField] Button _startBtn, _restartBtn, _mainMenuBtn, _haltBtn, _pathBtn, _ruleBtn, _starBtn, _zionBtn, _goldBtn, _rushBtn, _diveBtn, _massBtn, _omitBtn, _dirtBtn, _discBtn,
+    [SerializeField] Button _startBtn, _restartBtn, _mainMenuBtn, _haltBtn, _pathBtn, _ruleBtn, _starBtn, _zionBtn, _goldBtn, _rushBtn, _diveBtn, _massBtn, _omitBtn, _dirtBtn, _discBtn, _railBtn,
         _modZeroBtn, _modOneBtn, _modTwoBtn, _modThreeBtn, _modFourBtn,
                 _chronoBtn, _tempusBtn, _wardenBtn;
     [SerializeField] TMP_Text _abilityTimerTxt, _rechargeTxt, _chargesTxt,
@@ -19,7 +19,7 @@ public class GameUIManager : MonoBehaviour
     public Image _healthBar;
     float _valueChangeAmount = 0.5f;
     public int _killCount = 0;
-    [SerializeField] TempoSystem _haltTempo, _pathTempo, _ruleTempo, _starTempo, _zionTempo, _goldTempo, _rushTempo, _diveTempo, _massTempo, _omitTempo, _dirtTempo, _discTempo;
+    [SerializeField] TempoSystem _haltTempo, _pathTempo, _ruleTempo, _starTempo, _zionTempo, _goldTempo, _rushTempo, _diveTempo, _massTempo, _omitTempo, _dirtTempo, _discTempo, _railTempo;
     private void Start()
     {
         ComponentAssignment();
@@ -44,6 +44,7 @@ public class GameUIManager : MonoBehaviour
         _omitBtn.onClick.AddListener(OmitTempo);
         _dirtBtn.onClick.AddListener(DirtTempo);
         _discBtn.onClick.AddListener(DiscTempo);
+        _railBtn.onClick.AddListener(RailTempo);
         _modZeroBtn.onClick.AddListener(ModZeroSelected);
         _modOneBtn.onClick.AddListener(ModOneSelected);
         _modTwoBtn.onClick.AddListener(ModTwoSelected);
@@ -74,6 +75,8 @@ public class GameUIManager : MonoBehaviour
         _massTempo.enabled = false;
         _dirtTempo.enabled = false;
         _discTempo.enabled = false;
+        _railTempo.enabled = false;
+        CooldownTextTypeChange();
         _modOneTxt.text = "Mod1";
         _modTwoTxt.text = "Mod2";
         _modThreeTxt.text = "Mod3";
@@ -210,6 +213,17 @@ public class GameUIManager : MonoBehaviour
         _modTwoTxt.text = "Beg";
         _modThreeTxt.text = "Vex";
         _modFourTxt.text = "Foe";
+    }
+
+    void RailTempo()
+    {
+        TempoReset();
+        _railTempo.enabled = true;
+        _tempoSystem = _railTempo;
+        _modOneTxt.text = "Gap";
+        _modTwoTxt.text = "Ace";
+        _modThreeTxt.text = "Sin";
+        _modFourTxt.text = "Pay";
     }
 
     void ModZeroSelected()
@@ -418,6 +432,22 @@ public class GameUIManager : MonoBehaviour
         else
         {
             _rechargeTxt.text = _tempoSystem._currentRecharge.ToString() + "%";
+        }
+    }
+
+    public void CooldownTextTypeChange(bool _cooldown = true)
+    {
+        if (!_cooldown)
+        {
+            _abilityTimerTxt.gameObject.SetActive(false);
+            _chargesTxt.gameObject.SetActive(false);
+            _rechargeTxt.gameObject.SetActive(true);
+        }
+        else
+        {
+            _abilityTimerTxt.gameObject.SetActive(true);
+            _chargesTxt.gameObject.SetActive(true);
+            _rechargeTxt.gameObject.SetActive(false);
         }
     }
 }

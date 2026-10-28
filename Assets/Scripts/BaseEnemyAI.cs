@@ -171,16 +171,23 @@ public class BaseEnemyAI : MonoBehaviour
         {
             foreach (BaseEnemyAI _enemy in FindObjectsByType<BaseEnemyAI>(FindObjectsSortMode.None))
             {
-                if (_enemy.gameObject != gameObject && _enemy._targetType != TargetType.enemy)
+                if (_enemy.gameObject != gameObject && _enemy._targetType != TargetType.enemy && _enemy._currentHealth > 0)
                 {
                     if (_target == null)
                     {
                         _target = _enemy.gameObject;
-                    }
+                    }                    
                     if (Vector3.Distance(_target.transform.position, transform.position) > Vector3.Distance(_enemy.transform.position, transform.position))
                     {
                         _target = _enemy.gameObject;
                     }
+                }
+            }
+            if(_target != null)
+            {
+                if(_target.GetComponent<BaseEnemyAI>()._currentHealth <= 0)
+                {
+                    _target = null;
                 }
             }
         }
